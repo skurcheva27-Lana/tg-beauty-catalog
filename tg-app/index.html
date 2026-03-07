@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <!--
+    viewport: maximum-scale=1 отключает зум при тапе на поля ввода (iOS)
+    user-scalable=no — обязательно для нативного ощущения
+  -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#2aabee">
+  <title>Студия Ани — Каталог услуг</title>
+
+  <!-- Telegram Web App SDK — ОБЯЗАТЕЛЬНО перед основными скриптами -->
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+
+  <!-- Стили приложения -->
+  <link rel="stylesheet" href="css/app.css">
+</head>
+<body>
+
+  <!-- ════════════════════════════════════════════════════════
+       ЭКРАН 1: КАТАЛОГ
+       Первый экран. Стартует при открытии Mini App.
+  ════════════════════════════════════════════════════════ -->
+  <div id="screen-catalog" class="screen active" data-screen="catalog">
+
+    <!-- Шапка мастера: аватар, имя, рейтинг, приветствие -->
+    <div class="catalog-header">
+      <div class="master-avatar">💅</div>
+      <div>
+        <div class="master-name" id="master-name">Студия Ани</div>
+        <div class="master-rating">
+          <span>⭐</span>
+          <span id="master-rating">4.9</span>
+          <span class="rating-count" id="master-reviews">· 127 отзывов</span>
+        </div>
+      </div>
+      <div class="greeting" id="greeting"></div>
+    </div>
+
+    <!-- Фильтры по категориям (горизонтальный скролл) -->
+    <div class="filter-wrap">
+      <div class="filter-chips" id="filter-chips" role="tablist" aria-label="Категории услуг">
+        <!-- Чипы рендерятся через JS (Screens.catalog._renderFilters) -->
+      </div>
+    </div>
+
+    <!-- Список карточек услуг -->
+    <div class="services-list" id="services-list" role="list" aria-live="polite">
+      <!-- Карточки рендерятся через JS (Screens.catalog._renderServices) -->
+    </div>
+
+    <!-- Пустое состояние (нет услуг в категории) -->
+    <div class="empty-state" id="empty-state" style="display:none" aria-hidden="true">
+      <div class="empty-icon">🔍</div>
+      <div class="empty-title">Нет услуг в этой категории</div>
+      <div class="empty-sub">Скоро появятся новые предложения</div>
+    </div>
+
+  </div>
+
+
+  <!-- ════════════════════════════════════════════════════════
+       ЭКРАН 2: КАРТОЧКА УСЛУГИ
+       Детали выбранной услуги, галерея, отзывы.
+       Telegram BackButton → Каталог
+       Telegram MainButton «Записаться» → Дата/Время
+  ════════════════════════════════════════════════════════ -->
+  <div id="screen-service" class="screen" data-screen="service">
+
+    <!-- Галерея фото (горизонтальный свайп) -->
+    <div class="gallery" id="service-gallery" aria-label="Фото услуги">
+      <div class="gallery-track" id="gallery-track">
+        <!-- Слайды рендерятся через JS -->
+      </div>
+      <!-- Dots-индикатор -->
+      <div class="gallery-dots" id="gallery-dots" aria-hidden="true"></div>
+    </div>
+
+    <!-- Скроллируемый контент -->
+    <div class="screen-scroll">
+
+      <!-- Заголовок и мета услуги -->
+      <div class="service-header">
+        <div class="service-category-chip" id="service-category"></div>
+        <h1 class="service-name" id="service-name"></h1>
+        <div class="service-meta">
+          <div class="meta-item">
+            <span class="meta-icon" aria-hidden="true">⏱</span>
+            <span id="service-duration"></span>
+          </div>
+          <div class="meta-dot" aria-hidden="true">·</div>
+          <div class="meta-item">
+            <span class="meta-icon" aria-hidden="true">💰</span>
+            <span id="service-price"></span>
+          </div>
+        </div>
+      </div>
+
+      <div class="section-divider"></div>
+
+      <!-- Описание -->
+      <div class="section">
+        <div class="section-title">О процедуре</div>
+        <div class="service-desc" id="service-desc"></div>
+        <button class="btn-expand" id="btn-expand" style="display:none" aria-expanded="false">
+          Подробнее
+        </button>
+      </div>
+
+      <div class="section-divider"></div>
+
+      <!-- Отзывы -->
+      <div class="section">
+        <div class="section-title-row">
+          <div class="section-title">Отзывы</div>
+          <div class="rating-badge" id="service-rating-badge" aria-label="Рейтинг"></div>
+        </div>
+        <div class="reviews-list" id="reviews-list">
+          <!-- Отзывы рендерятся через JS -->
+        </div>
+      </div>
+
+      <div class="screen-bottom-space"></div>
+    </div>
+
+  </div>
+
+
+  <!-- ════════════════════════════════════════════════════════
+       ЭКРАН 3: ВЫБОР ДАТЫ И ВРЕМЕНИ
+       Стрип дней + слоты времени.
+       Telegram BackButton → Услуга
+       Telegram MainButton «Продолжить» (disabled до выбора слота) → Подтверждение
+  ════════════════════════════════════════════════════════ -->
+  <div id="screen-datetime" class="screen" data-screen="datetime">
+
+    <div class="screen-scroll">
+
+      <!-- Выбор даты -->
+      <div class="section">
+        <div class="screen-title">Выберите дату</div>
+
+        <!-- Горизонтальный стрип дней -->
+        <div class="day-strip-wrap">
+          <div class="day-strip" id="day-strip" role="listbox" aria-label="Выбор дня">
+            <!-- Дни рендерятся через JS -->
+          </div>
+        </div>
+
+        <!-- Текущая выбранная дата + подсказка длительности -->
+        <div class="selected-date-label" id="selected-date-label" aria-live="polite"></div>
+        <div class="service-duration-hint" id="duration-hint"></div>
+      </div>
+
+      <div class="section-divider"></div>
+
+      <!-- Слоты времени -->
+      <div class="section">
+        <div class="screen-title">Выберите время</div>
+
+        <!-- Контейнер слотов (утро / день / вечер) -->
+        <div id="slots-container">
+
+          <div class="slot-group">
+            <div class="slot-group-title">Утро</div>
+            <div class="slots-wrap" id="slots-morning" role="listbox" aria-label="Утренние слоты"></div>
+          </div>
+
+          <div class="slot-group">
+            <div class="slot-group-title">День</div>
+            <div class="slots-wrap" id="slots-afternoon" role="listbox" aria-label="Дневные слоты"></div>
+          </div>
+
+          <div class="slot-group">
+            <div class="slot-group-title">Вечер</div>
+            <div class="slots-wrap" id="slots-evening" role="listbox" aria-label="Вечерние слоты"></div>
+          </div>
+
+        </div>
+
+        <!-- Сообщение «нет слотов» -->
+        <div class="no-slots-msg" id="no-slots-msg" style="display:none" role="alert">
+          На этот день нет свободного времени — выберите другой
+        </div>
+      </div>
+
+      <div class="screen-bottom-space"></div>
+    </div>
+
+  </div>
+
+
+  <!-- ════════════════════════════════════════════════════════
+       ЭКРАН 4: ПОДТВЕРЖДЕНИЕ ЗАПИСИ
+       Форма (имя prefill, телефон, комментарий) + сводка.
+       Telegram BackButton → Дата/Время
+       Telegram MainButton «Подтвердить запись» → Успех
+  ════════════════════════════════════════════════════════ -->
+  <div id="screen-confirm" class="screen" data-screen="confirm">
+
+    <div class="screen-scroll">
+
+      <!-- Форма данных -->
+      <div class="section">
+        <div class="screen-title">Ваши данные</div>
+
+        <div class="form-section">
+          <div class="form-field">
+            <label class="form-label" for="input-name">Имя</label>
+            <input
+              type="text"
+              id="input-name"
+              class="form-input"
+              placeholder="Как к вам обращаться?"
+              autocomplete="name"
+              enterkeyhint="next"
+            >
+          </div>
+          <div class="form-field form-field--last">
+            <label class="form-label" for="input-phone">
+              Телефон <span style="color:var(--tg-theme-destructive-text-color)">*</span>
+            </label>
+            <input
+              type="tel"
+              id="input-phone"
+              class="form-input"
+              placeholder="+7 ___ ___-__-__"
+              autocomplete="tel"
+              inputmode="tel"
+              enterkeyhint="done"
+            >
+          </div>
+        </div>
+
+        <div class="form-section" style="margin-top: 8px">
+          <div class="form-field form-field--last">
+            <label class="form-label" for="input-comment">
+              Комментарий <span class="optional">(необязательно)</span>
+            </label>
+            <textarea
+              id="input-comment"
+              class="form-input form-textarea"
+              placeholder="Пожелания, аллергии, особые просьбы…"
+              rows="3"
+            ></textarea>
+          </div>
+        </div>
+      </div>
+
+      <div class="section-divider"></div>
+
+      <!-- Сводка записи -->
+      <div class="section">
+        <div class="screen-title">Ваша запись</div>
+
+        <div class="summary-card" id="summary-card">
+          <div class="summary-row">
+            <span class="summary-label">💅 Услуга</span>
+            <span class="summary-value" id="sum-service"></span>
+          </div>
+          <div class="summary-row">
+            <span class="summary-label">📅 Дата</span>
+            <span class="summary-value" id="sum-date"></span>
+          </div>
+          <div class="summary-row">
+            <span class="summary-label">🕐 Время</span>
+            <span class="summary-value" id="sum-time"></span>
+          </div>
+          <div class="summary-row">
+            <span class="summary-label">⏱ Длительность</span>
+            <span class="summary-value" id="sum-duration"></span>
+          </div>
+          <div class="summary-row summary-row--last">
+            <span class="summary-label">💰 Стоимость</span>
+            <span class="summary-value summary-price" id="sum-price"></span>
+          </div>
+        </div>
+
+        <div class="cancel-policy">✓ Отмена за 2 часа — без штрафа</div>
+      </div>
+
+      <div class="screen-bottom-space"></div>
+    </div>
+
+  </div>
+
+
+  <!-- ════════════════════════════════════════════════════════
+       ЭКРАН 5: УСПЕХ
+       Показывается после успешной записи.
+       Telegram BackButton СКРЫТ — нельзя вернуться к форме
+       Telegram MainButton «Вернуться в каталог»
+  ════════════════════════════════════════════════════════ -->
+  <div id="screen-success" class="screen" data-screen="success">
+
+    <div class="success-content">
+
+      <!-- Анимированная галочка -->
+      <div class="checkmark-wrap" aria-hidden="true">
+        <div class="checkmark-circle">
+          <svg class="checkmark-svg" viewBox="0 0 52 52" xmlns="http://www.w3.org/2000/svg">
+            <circle class="checkmark-circle-path" cx="26" cy="26" r="25" fill="none"/>
+            <path class="checkmark-tick" fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8"/>
+          </svg>
+        </div>
+      </div>
+
+      <!-- Заголовок -->
+      <h2 class="success-title" role="status">Запись подтверждена!</h2>
+      <p class="success-sub">Аня пришлёт напоминание за день до визита&nbsp;🔔</p>
+
+      <!-- Сводка -->
+      <div class="success-summary" id="success-summary" aria-label="Детали записи">
+        <!-- Строки рендерятся через JS -->
+      </div>
+
+      <!-- Кнопка добавить в календарь -->
+      <button class="btn-calendar" id="btn-calendar" type="button">
+        <span aria-hidden="true">📅</span>
+        Добавить в календарь
+      </button>
+
+    </div>
+
+    <div class="screen-bottom-space"></div>
+  </div>
+
+
+  <!-- ════════════════════════════════════════════════════════
+       БРАУЗЕРНЫЕ ЗАГЛУШКИ КНОПОК
+       Видны только при открытии вне Telegram (для разработки).
+       В реальном Telegram скрыты — используются нативные кнопки SDK.
+  ════════════════════════════════════════════════════════ -->
+
+  <!-- Заглушка MainButton (нижняя кнопка действия) -->
+  <div class="browser-main-btn-wrap" id="browser-main-btn-wrap" style="display:none">
+    <button class="browser-main-btn" id="browser-main-btn" type="button">
+      Продолжить
+    </button>
+  </div>
+
+  <!-- Заглушка BackButton (кнопка «← Назад») -->
+  <div class="browser-back-btn-wrap" id="browser-back-btn-wrap" style="display:none">
+    <button class="browser-back-btn" id="browser-back-btn" type="button" aria-label="Назад">
+      ← Назад
+    </button>
+  </div>
+
+
+  <!-- ════════════════════════════════════════════════════════
+       СКРИПТЫ
+       Порядок важен: data.js → app.js
+  ════════════════════════════════════════════════════════ -->
+  <!-- ════════════════════════════════════════════════════════
+       ОФФЕР-МОДАЛКА
+       Показывается один раз при первом открытии.
+       Скрыта по умолчанию, JS показывает через offer-in.
+  ════════════════════════════════════════════════════════ -->
+  <div id="offer-overlay" class="offer-overlay" role="dialog" aria-modal="true" aria-labelledby="offer-title">
+    <div class="offer-card">
+      <div class="offer-emoji">🎁</div>
+      <h2 class="offer-title" id="offer-title">Скидка 15% на первую запись</h2>
+      <p class="offer-sub">Подпишитесь на бота — получите промокод в личное сообщение</p>
+      <ul class="offer-bullets">
+        <li>Напомним о записи за день</li>
+        <li>Первыми узнаёте о свободных окошках</li>
+        <li>Эксклюзивные акции для подписчиков</li>
+      </ul>
+      <button class="offer-btn" id="offer-btn" type="button">Получить скидку 15%</button>
+      <button class="offer-skip" id="offer-skip" type="button">Пропустить</button>
+    </div>
+  </div>
+
+  <script src="js/data.js"></script>
+  <script src="js/app.js"></script>
+
+</body>
+</html>
