@@ -746,7 +746,33 @@
   }; // end Screens
 
   /* ────────────────────────────────────────────────────────
-     6. Оффер-модалка: показывается один раз при первом открытии
+     6. Онбординг: показывается один раз при первом открытии
+  ──────────────────────────────────────────────────────── */
+  function showOnboardingOnce() {
+    const ONB_KEY = 'onboarding_shown_v1';
+    if (localStorage.getItem(ONB_KEY)) return;
+
+    const overlay = document.getElementById('onboarding-overlay');
+    if (!overlay) return;
+
+    const user = tg.initDataUnsafe?.user;
+    if (user?.first_name) {
+      const nameEl = document.getElementById('onboarding-name');
+      if (nameEl) nameEl.textContent = user.first_name + '!';
+    }
+
+    overlay.classList.add('onb-in');
+
+    document.getElementById('onboarding-btn').addEventListener('click', () => {
+      localStorage.setItem(ONB_KEY, '1');
+      overlay.classList.remove('onb-in');
+      overlay.classList.add('onb-out');
+      setTimeout(() => overlay.remove(), 300);
+    });
+  }
+
+  /* ────────────────────────────────────────────────────────
+     7. Оффер-модалка: показывается один раз при первом открытии
   ──────────────────────────────────────────────────────── */
   function showOfferOnce() {
     const OFFER_KEY = 'offer_shown_v1';
@@ -822,8 +848,23 @@
     // Запускаем с экрана каталога
     Screens.catalog.mount();
 
-    // Оффер — один раз при первом открытии
+    // Онбординг — один раз при первом открытии
+    showOnboardingOnce();
+
+    // Оффер — один раз при первом открытии (со второго визита)
     showOfferOnce();
+
+    // Кнопка «Поделиться с другом»
+    const shareBtn = document.getElementById('share-btn');
+    if (shareBtn) {
+      shareBtn.addEventListener('click', () => {
+        tg.HapticFeedback.impactOccurred('light');
+        const url = 'https://t.me/anuyta_beauty_bot';
+        const text = 'Записываюсь к мастеру маникюра через бота — быстро и удобно 💅';
+        tg.openTelegramLink?.('https://t.me/share/url?url=' + encodeURIComponent(url) + '&text=' + encodeURIComponent(text))
+          || tg.openLink('https://t.me/share/url?url=' + encodeURIComponent(url) + '&text=' + encodeURIComponent(text));
+      });
+    }
   }
 
   // Запускаем после загрузки DOM

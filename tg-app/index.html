@@ -36,6 +36,7 @@
         </div>
       </div>
       <div class="greeting" id="greeting"></div>
+      <button class="share-btn" id="share-btn" type="button" aria-label="Поделиться с другом">↗</button>
     </div>
 
     <!-- Фильтры по категориям (горизонтальный скролл) -->
@@ -352,6 +353,24 @@
        СКРИПТЫ
        Порядок важен: data.js → app.js
   ════════════════════════════════════════════════════════ -->
+  <!-- ════════════════════════════════════════════════════════
+       ОНБОРДИНГ
+       Показывается один раз при первом открытии — до каталога.
+  ════════════════════════════════════════════════════════ -->
+  <div id="onboarding-overlay" class="onboarding-overlay" role="dialog" aria-modal="true">
+    <div class="onboarding-content">
+      <div class="onboarding-logo">💅</div>
+      <h1 class="onboarding-title">Привет, <span id="onboarding-name">красавица</span>!</h1>
+      <p class="onboarding-sub">Студия Ани — маникюр, педикюр, брови и ресницы. Записаться можно прямо здесь, без звонков.</p>
+      <ul class="onboarding-features">
+        <li><span class="feature-icon">💅</span><span>Выбирайте услугу из каталога</span></li>
+        <li><span class="feature-icon">📅</span><span>Бронируйте удобный день и время</span></li>
+        <li><span class="feature-icon">🔔</span><span>Аня напомнит о визите заранее</span></li>
+      </ul>
+      <button class="onboarding-btn" id="onboarding-btn" type="button">Начать</button>
+    </div>
+  </div>
+
   <!-- ════════════════════════════════════════════════════════
        ОФФЕР-МОДАЛКА
        Показывается один раз при первом открытии.
