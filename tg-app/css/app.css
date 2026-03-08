@@ -1291,3 +1291,19 @@ a { color: var(--accent); text-decoration: none; }
 }
 
 .share-btn:active { opacity: 0.7; }
+
+.btn-book {
+  display: block;
+  width: 100%;
+  min-height: 52px;
+  background: #2aabee;
+  color: #ffffff;
+  border: none;
+  border-radius: 14px;
+  font-size: 17px;
+  font-weight: 600;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.btn-book:active { opacity: 0.85; }

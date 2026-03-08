@@ -308,10 +308,14 @@
 
         // Кнопки
         setBackBtn(() => { tg.HapticFeedback.impactOccurred('light'); Router.back(); });
-        setMainBtn('Записаться', () => {
+        const goDatetime = () => {
           tg.HapticFeedback.impactOccurred('medium');
           Router.go('datetime');
-        });
+        };
+        setMainBtn('Записаться', goDatetime);
+
+        const btnBook = document.getElementById('btn-book');
+        if (btnBook) btnBook.onclick = goDatetime;
 
         // Галерея
         this._renderGallery(s);
