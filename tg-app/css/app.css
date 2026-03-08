@@ -174,12 +174,11 @@ a { color: var(--accent); text-decoration: none; }
 
 /* Шапка мастера */
 .catalog-header {
-  padding: 16px 16px 12px;
+  padding: 14px 16px 12px;
   display: flex;
   align-items: center;
   gap: 12px;
-  background: var(--surface);
-  border-bottom: 1px solid color-mix(in srgb, var(--hint) 20%, transparent);
+  background: var(--bg);
 }
 
 .master-avatar {
@@ -279,20 +278,18 @@ a { color: var(--accent); text-decoration: none; }
 
 /* Карточка услуги в каталоге */
 .service-card {
-  margin: 0 16px 12px;
+  margin: 0 16px 10px;
   background: var(--surface);
-  border-radius: 16px;
+  border-radius: 14px;
   overflow: hidden;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.06);
   cursor: pointer;
-  transition: transform 0.15s, box-shadow 0.15s;
+  transition: transform 0.12s;
   -webkit-user-select: none;
   user-select: none;
 }
 
 .service-card:active {
-  transform: scale(0.985);
-  box-shadow: 0 0 0 rgba(0,0,0,0);
+  transform: scale(0.982);
 }
 
 /* Превью-картинка (градиент + эмодзи) */
@@ -717,7 +714,6 @@ a { color: var(--accent); text-decoration: none; }
   background: var(--surface);
   border-radius: 14px;
   overflow: hidden;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.05);
 }
 
 .form-field {
@@ -768,7 +764,6 @@ a { color: var(--accent); text-decoration: none; }
   background: var(--surface);
   border-radius: 14px;
   padding: 14px 16px;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.05);
 }
 
 .summary-row {
@@ -903,7 +898,6 @@ a { color: var(--accent); text-decoration: none; }
   border-radius: 14px;
   padding: 14px 16px;
   margin-bottom: 16px;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.06);
   animation: fadeUp 350ms 600ms ease both;
 }
 
@@ -958,7 +952,7 @@ a { color: var(--accent); text-decoration: none; }
   padding: 10px 16px;
   padding-bottom: max(10px, env(safe-area-inset-bottom));
   background: var(--bg);
-  border-top: 1px solid color-mix(in srgb, var(--hint) 15%, transparent);
+  border-top: 0.5px solid color-mix(in srgb, var(--hint) 20%, transparent);
 }
 
 .browser-main-btn {
@@ -987,19 +981,20 @@ a { color: var(--accent); text-decoration: none; }
   max-width: 430px;
   margin: 0 auto;
   z-index: 100;
-  padding: 8px 16px;
+  padding: 6px 8px;
   background: var(--bg);
-  border-bottom: 1px solid color-mix(in srgb, var(--hint) 15%, transparent);
+  border-bottom: 0.5px solid color-mix(in srgb, var(--hint) 20%, transparent);
 }
 
 .browser-back-btn {
-  font-size: 16px;
-  font-weight: 500;
+  font-size: 17px;
+  font-weight: 400;
   color: var(--accent);
-  padding: 6px 0;
+  padding: 4px 8px;
   min-height: 44px;
   display: flex;
   align-items: center;
+  gap: 4px;
 }
 
 /* Отступ сверху для экранов когда видна браузерная кнопка назад */
@@ -1048,12 +1043,10 @@ a { color: var(--accent); text-decoration: none; }
   display: none;
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.55);
-  backdrop-filter: blur(4px);
-  -webkit-backdrop-filter: blur(4px);
-  align-items: center;
+  background: rgba(0, 0, 0, 0.5);
+  align-items: flex-end;
   justify-content: center;
-  padding: 20px;
+  padding: 0;
   z-index: 1000;
 }
 
@@ -1086,22 +1079,34 @@ a { color: var(--accent); text-decoration: none; }
 }
 
 @keyframes offerCardIn {
-  from { opacity: 0; transform: translateY(40px) scale(0.95); }
-  to   { opacity: 1; transform: translateY(0)    scale(1);    }
+  from { transform: translateY(100%); }
+  to   { transform: translateY(0); }
 }
 
 @keyframes offerCardOut {
-  from { opacity: 1; transform: translateY(0)    scale(1);    }
-  to   { opacity: 0; transform: translateY(20px) scale(0.95); }
+  from { transform: translateY(0); }
+  to   { transform: translateY(100%); }
 }
 
 .offer-card {
   background: var(--surface);
-  border-radius: 20px;
-  padding: 28px 24px 24px;
+  border-radius: 20px 20px 0 0;
+  padding: 8px 24px 24px;
+  padding-bottom: max(24px, env(safe-area-inset-bottom));
   width: 100%;
-  max-width: 360px;
+  max-width: 430px;
   text-align: center;
+}
+
+/* Drag handle */
+.offer-card::before {
+  content: '';
+  display: block;
+  width: 36px;
+  height: 4px;
+  background: color-mix(in srgb, var(--hint) 30%, transparent);
+  border-radius: 2px;
+  margin: 0 auto 20px;
 }
 
 .offer-emoji {
