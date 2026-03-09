@@ -14,7 +14,7 @@
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
 
   <!-- Стили приложения -->
-  <link rel="stylesheet" href="css/app.css">
+  <link rel="stylesheet" href="css/app.css?v=5">
 </head>
 <body>
 
@@ -98,27 +98,28 @@
         </div>
       </div>
 
-      <div class="section-divider"></div>
-
-      <!-- Описание -->
-      <div class="section">
-        <div class="section-title">О процедуре</div>
-        <div class="service-desc" id="service-desc"></div>
-        <button class="btn-expand" id="btn-expand" style="display:none" aria-expanded="false">
-          Подробнее
-        </button>
+      <!-- Табы: О процедуре / Отзывы -->
+      <div class="service-tabs" role="tablist">
+        <button type="button" class="service-tab active" id="tab-desc" role="tab" aria-selected="true" aria-controls="panel-desc">О процедуре</button>
+        <button type="button" class="service-tab" id="tab-reviews" role="tab" aria-selected="false" aria-controls="panel-reviews">Отзывы <span class="tab-rating" id="tab-rating-badge"></span></button>
       </div>
 
-      <div class="section-divider"></div>
-
-      <!-- Отзывы -->
-      <div class="section">
-        <div class="section-title-row">
-          <div class="section-title">Отзывы</div>
-          <div class="rating-badge" id="service-rating-badge" aria-label="Рейтинг"></div>
+      <!-- Панель: Описание -->
+      <div class="service-tab-panel" id="panel-desc" role="tabpanel">
+        <div class="section">
+          <div class="service-desc" id="service-desc"></div>
+          <button class="btn-expand" id="btn-expand" style="display:none" aria-expanded="false">
+            Подробнее
+          </button>
         </div>
-        <div class="reviews-list" id="reviews-list">
-          <!-- Отзывы рендерятся через JS -->
+      </div>
+
+      <!-- Панель: Отзывы -->
+      <div class="service-tab-panel" id="panel-reviews" role="tabpanel" style="display:none">
+        <div class="section">
+          <div class="reviews-list" id="reviews-list">
+            <!-- Отзывы рендерятся через JS -->
+          </div>
         </div>
       </div>
 
@@ -334,6 +335,57 @@
 
 
   <!-- ════════════════════════════════════════════════════════
+       ЭКРАН: О МАСТЕРЕ
+  ════════════════════════════════════════════════════════ -->
+  <div id="screen-about" class="screen" data-screen="about">
+    <div class="screen-scroll">
+      <div class="section">
+        <div class="screen-title">О мастере</div>
+        <div class="about-header">
+          <div class="about-avatar-lg">💅</div>
+          <div>
+            <div class="master-name" id="about-master-name"></div>
+            <div class="master-rating">
+              <span>⭐</span>
+              <span id="about-rating"></span>
+              <span class="rating-count" id="about-reviews"></span>
+            </div>
+          </div>
+        </div>
+        <p class="about-desc" id="about-desc"></p>
+        <div class="about-info-card" id="about-info-card"></div>
+      </div>
+      <div class="screen-bottom-space"></div>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════════════════════════
+       ЭКРАН: ПОРТФОЛИО
+  ════════════════════════════════════════════════════════ -->
+  <div id="screen-portfolio" class="screen" data-screen="portfolio">
+    <div class="screen-scroll">
+      <div class="section">
+        <div class="screen-title">Портфолио</div>
+        <div class="portfolio-grid" id="portfolio-grid"></div>
+      </div>
+      <div class="screen-bottom-space"></div>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════════════════════════
+       ЭКРАН: МОИ ЗАПИСИ
+  ════════════════════════════════════════════════════════ -->
+  <div id="screen-bookings" class="screen" data-screen="bookings">
+    <div class="screen-scroll">
+      <div class="section">
+        <div class="screen-title">Мои записи</div>
+        <div id="bookings-content"></div>
+      </div>
+      <div class="screen-bottom-space"></div>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════════════════════════
        БРАУЗЕРНЫЕ ЗАГЛУШКИ КНОПОК
        Видны только при открытии вне Telegram (для разработки).
        В реальном Telegram скрыты — используются нативные кнопки SDK.
@@ -397,8 +449,31 @@
     </div>
   </div>
 
-  <script src="js/data.js"></script>
-  <script src="js/app.js"></script>
+  <!-- ════════════════════════════════════════════════════════
+       НИЖНИЙ ТАБ-БАР
+       Виден только на верхнеуровневых экранах (не в потоке записи).
+  ════════════════════════════════════════════════════════ -->
+  <nav class="tab-bar" id="tab-bar" role="tablist" aria-label="Навигация">
+    <button class="tab-bar-item active" id="tab-item-catalog" data-tab="catalog" type="button" role="tab" aria-label="Каталог">
+      <span class="tab-bar-icon" aria-hidden="true">💅</span>
+      <span class="tab-bar-label">Каталог</span>
+    </button>
+    <button class="tab-bar-item" id="tab-item-about" data-tab="about" type="button" role="tab" aria-label="О мастере">
+      <span class="tab-bar-icon" aria-hidden="true">👤</span>
+      <span class="tab-bar-label">О мастере</span>
+    </button>
+    <button class="tab-bar-item" id="tab-item-portfolio" data-tab="portfolio" type="button" role="tab" aria-label="Портфолио">
+      <span class="tab-bar-icon" aria-hidden="true">📸</span>
+      <span class="tab-bar-label">Портфолио</span>
+    </button>
+    <button class="tab-bar-item" id="tab-item-bookings" data-tab="bookings" type="button" role="tab" aria-label="Мои записи">
+      <span class="tab-bar-icon" aria-hidden="true">📅</span>
+      <span class="tab-bar-label">Мои записи</span>
+    </button>
+  </nav>
+
+  <script src="js/data.js?v=5"></script>
+  <script src="js/app.js?v=5"></script>
 
 </body>
 </html>

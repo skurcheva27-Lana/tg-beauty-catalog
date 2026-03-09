@@ -34,6 +34,9 @@
 
   /* Высота MainButton Telegram (~50px) + отступ */
   --main-btn-h: 60px;
+
+  /* Высота нижнего таб-бара */
+  --tab-bar-h: 56px;
 }
 
 /* ──────────────────────────────────────────────────────────
@@ -507,6 +510,45 @@ a { color: var(--accent); text-decoration: none; }
   margin-top: 6px;
   padding: 4px 0;
   font-weight: 500;
+}
+
+/* Табы экрана услуги */
+.service-tabs {
+  display: flex;
+  border-bottom: 1.5px solid rgba(142,142,147,.2);
+  margin: 0 16px;
+}
+
+.service-tab {
+  flex: 1;
+  padding: 10px 0;
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--hint);
+  background: none;
+  border: none;
+  border-bottom: 2.5px solid transparent;
+  margin-bottom: -1.5px;
+  cursor: pointer;
+  touch-action: manipulation;
+  -webkit-user-select: none;
+  user-select: none;
+  transition: color 150ms ease, border-color 150ms ease;
+}
+
+.service-tab.active {
+  color: var(--accent);
+  border-bottom-color: var(--accent);
+}
+
+.tab-rating {
+  font-size: 12px;
+  font-weight: 600;
+  color: inherit;
+}
+
+.service-tab-panel {
+  padding-top: 4px;
 }
 
 /* Рейтинг-бейдж */
@@ -1312,3 +1354,171 @@ a { color: var(--accent); text-decoration: none; }
 }
 
 .btn-book:active { opacity: 0.85; }
+
+/* ══════════════════════════════════════════════════
+   ТАБ-БАР (нижняя навигация)
+══════════════════════════════════════════════════ */
+.tab-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  max-width: 430px;
+  margin: 0 auto;
+  background: var(--bg);
+  border-top: 0.5px solid color-mix(in srgb, var(--hint) 20%, transparent);
+  display: none;
+  align-items: stretch;
+  z-index: 95;
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+.tab-bar.visible { display: flex; }
+
+.tab-bar-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  padding: 8px 4px;
+  height: var(--tab-bar-h);
+  color: var(--hint);
+  background: none;
+  border: none;
+  cursor: pointer;
+  touch-action: manipulation;
+  -webkit-user-select: none;
+  user-select: none;
+  transition: color 150ms ease;
+}
+
+.tab-bar-item.active { color: var(--accent); }
+.tab-bar-item:active { opacity: 0.65; }
+
+.tab-bar-icon {
+  font-size: 22px;
+  line-height: 1;
+}
+
+.tab-bar-label {
+  font-size: 10px;
+  font-weight: 500;
+  line-height: 1;
+}
+
+/* Сдвигаем контент вверх, когда виден таб-бар */
+.has-tab-bar .services-list {
+  padding-bottom: calc(var(--tab-bar-h) + env(safe-area-inset-bottom) + 20px);
+}
+
+.has-tab-bar .screen-scroll {
+  padding-bottom: calc(var(--tab-bar-h) + env(safe-area-inset-bottom) + 8px);
+}
+
+/* ══════════════════════════════════════════════════
+   ЭКРАН «О МАСТЕРЕ»
+══════════════════════════════════════════════════ */
+.about-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.about-avatar-lg {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #f093fb, #f5576c);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 36px;
+  flex-shrink: 0;
+}
+
+.about-desc {
+  font-size: 15px;
+  color: var(--text);
+  line-height: 1.6;
+  margin-bottom: 20px;
+}
+
+.about-info-card {
+  background: var(--surface);
+  border-radius: 14px;
+  overflow: hidden;
+}
+
+.about-info-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 13px 16px;
+  font-size: 15px;
+  border-bottom: 0.5px solid color-mix(in srgb, var(--hint) 15%, transparent);
+}
+
+.about-info-row:last-child { border-bottom: none; }
+.about-info-label { color: var(--text); }
+.about-info-value { color: var(--hint); font-weight: 500; }
+
+/* ══════════════════════════════════════════════════
+   ЭКРАН «ПОРТФОЛИО»
+══════════════════════════════════════════════════ */
+.portfolio-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.portfolio-item {
+  aspect-ratio: 1;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 44px;
+}
+
+/* ══════════════════════════════════════════════════
+   ЭКРАН «МОИ ЗАПИСИ»
+══════════════════════════════════════════════════ */
+.booking-card {
+  background: var(--surface);
+  border-radius: 14px;
+  padding: 16px;
+  margin-bottom: 10px;
+}
+
+.booking-service {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 6px;
+}
+
+.booking-meta {
+  font-size: 14px;
+  color: var(--hint);
+  margin-bottom: 8px;
+}
+
+.booking-price {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--accent);
+  margin-bottom: 8px;
+}
+
+.booking-status-badge {
+  display: inline-block;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 3px 10px;
+  border-radius: 20px;
+  background: color-mix(in srgb, #34c759 15%, transparent);
+  color: #34c759;
+}

@@ -140,7 +140,31 @@
   }
 
   /* ────────────────────────────────────────────────────────
-     4. Роутер — переходы между экранами
+     4. Таб-бар
+  ──────────────────────────────────────────────────────── */
+
+  /** Верхнеуровневые вкладки — на них таб-бар виден */
+  const TAB_SCREENS = ['catalog', 'about', 'portfolio', 'bookings'];
+
+  function showTabBar(activeTab) {
+    const bar = document.getElementById('tab-bar');
+    if (!bar) return;
+    bar.classList.add('visible');
+    document.body.classList.add('has-tab-bar');
+    bar.querySelectorAll('.tab-bar-item').forEach(btn => {
+      btn.classList.toggle('active', btn.dataset.tab === activeTab);
+    });
+  }
+
+  function hideTabBar() {
+    const bar = document.getElementById('tab-bar');
+    if (!bar) return;
+    bar.classList.remove('visible');
+    document.body.classList.remove('has-tab-bar');
+  }
+
+  /* ────────────────────────────────────────────────────────
+     5. Роутер — переходы между экранами
   ──────────────────────────────────────────────────────── */
   const SCREENS_ORDER = ['catalog', 'service', 'datetime', 'confirm', 'success'];
 
@@ -166,9 +190,16 @@
 
       state.screen = name;
 
+      // Показываем/скрываем таб-бар
+      if (TAB_SCREENS.includes(name)) {
+        showTabBar(name);
+      } else {
+        hideTabBar();
+      }
+
       // Монтируем экран (рендер + кнопки)
-      const mountFn = Screens[name]?.mount;
-      if (mountFn) mountFn();
+      const screen = Screens[name];
+      if (screen?.mount) screen.mount();
     },
 
     /** Перейти назад */
@@ -421,10 +452,28 @@
           }, 50);
         }
 
-        // Рейтинг-бейдж
-        const ratingEl = document.getElementById('service-rating-badge');
-        if (ratingEl) {
-          ratingEl.textContent = `⭐ ${MASTER.rating} (${MASTER.reviewsCount})`;
+        // Переключение табов
+        const tabDesc   = document.getElementById('tab-desc');
+        const tabRevs   = document.getElementById('tab-reviews');
+        const panelDesc = document.getElementById('panel-desc');
+        const panelRevs = document.getElementById('panel-reviews');
+        const tabRating = document.getElementById('tab-rating-badge');
+
+        if (tabRating) tabRating.textContent = `⭐ ${MASTER.rating}`;
+
+        if (tabDesc && tabRevs && panelDesc && panelRevs) {
+          const switchTab = (showDesc) => {
+            tabDesc.classList.toggle('active', showDesc);
+            tabRevs.classList.toggle('active', !showDesc);
+            panelDesc.style.display = showDesc ? 'block' : 'none';
+            panelRevs.style.display = showDesc ? 'none' : 'block';
+            tg.HapticFeedback.selectionChanged();
+          };
+
+          tabDesc.onclick = () => switchTab(true);
+          tabRevs.onclick = () => switchTab(false);
+
+          switchTab(true); // по умолчанию — «О процедуре»
         }
 
         // Отзывы
@@ -747,6 +796,92 @@
       },
     },
 
+    /* ── Экран: О мастере ─────────────────────────────── */
+    about: {
+      mount() {
+        hideMainBtn();
+        hideBackBtn();
+
+        const nameEl    = document.getElementById('about-master-name');
+        const ratingEl  = document.getElementById('about-rating');
+        const reviewsEl = document.getElementById('about-reviews');
+        const descEl    = document.getElementById('about-desc');
+        const infoCard  = document.getElementById('about-info-card');
+
+        if (nameEl)    nameEl.textContent    = MASTER.masterName;
+        if (ratingEl)  ratingEl.textContent  = MASTER.rating;
+        if (reviewsEl) reviewsEl.textContent = `· ${MASTER.reviewsCount} отзывов`;
+        if (descEl)    descEl.textContent    = MASTER.description;
+
+        if (infoCard) {
+          const RU_DAYS = ['Вс', 'Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб'];
+          const workDayNames = MASTER.workDays.map(d => RU_DAYS[d]);
+          infoCard.innerHTML = `
+            <div class="about-info-row">
+              <span class="about-info-label">🕐 Рабочие часы</span>
+              <span class="about-info-value">${MASTER.workHours.start}:00 — ${MASTER.workHours.end}:00</span>
+            </div>
+            <div class="about-info-row">
+              <span class="about-info-label">📅 Рабочие дни</span>
+              <span class="about-info-value">${workDayNames.join(', ')}</span>
+            </div>
+            <div class="about-info-row">
+              <span class="about-info-label">⭐ Рейтинг</span>
+              <span class="about-info-value">${MASTER.rating} / 5</span>
+            </div>
+          `;
+        }
+      },
+    },
+
+    /* ── Экран: Портфолио ─────────────────────────────── */
+    portfolio: {
+      mount() {
+        hideMainBtn();
+        hideBackBtn();
+
+        const grid = document.getElementById('portfolio-grid');
+        if (!grid) return;
+
+        grid.innerHTML = SERVICES.map(s => `
+          <div class="portfolio-item" style="background:${s.gradient}">
+            <span>${s.photos[0]}</span>
+          </div>
+        `).join('');
+      },
+    },
+
+    /* ── Экран: Мои записи ────────────────────────────── */
+    bookings: {
+      mount() {
+        hideMainBtn();
+        hideBackBtn();
+
+        const el = document.getElementById('bookings-content');
+        if (!el) return;
+
+        if (state.service && state.date && state.time) {
+          const endTime = calcEndTime(state.time, state.service.duration);
+          el.innerHTML = `
+            <div class="booking-card">
+              <div class="booking-service">${state.service.emoji} ${state.service.name}</div>
+              <div class="booking-meta">${formatDateRu(state.date)} · ${state.time} — ${endTime}</div>
+              <div class="booking-price">${formatPrice(state.service.price)}</div>
+              <span class="booking-status-badge">✓ Подтверждено</span>
+            </div>
+          `;
+        } else {
+          el.innerHTML = `
+            <div class="empty-state">
+              <div class="empty-icon">📅</div>
+              <div class="empty-title">Нет записей</div>
+              <div class="empty-sub">Здесь появятся ваши предстоящие визиты</div>
+            </div>
+          `;
+        }
+      },
+    },
+
   }; // end Screens
 
   /* ────────────────────────────────────────────────────────
@@ -848,6 +983,17 @@
     if (masterNameEl)    masterNameEl.textContent    = MASTER.name;
     if (masterRatingEl)  masterRatingEl.textContent  = MASTER.rating;
     if (masterReviewsEl) masterReviewsEl.textContent = `· ${MASTER.reviewsCount} отзывов`;
+
+    // Инициализируем таб-бар
+    document.querySelectorAll('.tab-bar-item').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const tab = btn.dataset.tab;
+        if (tab === state.screen) return;
+        tg.HapticFeedback.selectionChanged();
+        Router.go(tab, 'fade-in');
+      });
+    });
+    showTabBar('catalog');
 
     // Запускаем с экрана каталога
     Screens.catalog.mount();
