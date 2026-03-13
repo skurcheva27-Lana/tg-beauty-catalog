@@ -8,3 +8,6 @@
 
 # Node.js
 node_modules/
+
+# Логи — не коммитим, но папку сохраняем через .gitkeep
+logs/*.log

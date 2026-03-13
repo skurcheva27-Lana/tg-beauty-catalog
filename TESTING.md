@@ -11,18 +11,33 @@
 
 ```
 tg-beauty-catalog/
-├── tg-app/
-│   ├── index.html          ← точка входа, все 8 экранов в DOM
-│   ├── css/app.css         ← все стили
+├── tg-app/                         ← фронтенд (Vercel)
+│   ├── index.html                  ← точка входа, все 8 экранов в DOM
+│   ├── css/app.css                 ← все стили
 │   ├── js/
-│   │   ├── app.js          ← роутер, логика, экраны (~1028 строк)
-│   │   └── data.js         ← данные: мастер, услуги, слоты (~290 строк)
-│   ├── vercel.json         ← конфиг деплоя (cleanUrls, no trailingSlash)
-│   └── CLAUDE.md           ← документация разработчика
-├── brief.md                ← спецификации проекта
-├── research.md             ← конкурентный анализ
-├── .env                    ← BOT_TOKEN (только для бэкенда, фронтенд не использует)
-└── TESTING.md              ← этот файл
+│   │   ├── app.js                  ← роутер, логика, экраны (~1028 строк)
+│   │   └── data.js                 ← данные: мастер, услуги, слоты (~290 строк)
+│   ├── vercel.json                 ← конфиг деплоя (cleanUrls, no trailingSlash)
+│   └── CLAUDE.md                   ← документация разработчика
+├── backend/                        ← Node.js сервер (Fastify 5 + Supabase)
+│   ├── src/
+│   │   ├── server.js               ← точка входа
+│   │   ├── db.js                   ← клиент Supabase
+│   │   ├── logger.js               ← логирование (пишет в logs/)
+│   │   ├── bot/manager.js          ← multi-bot менеджер (Telegraf)
+│   │   └── api/
+│   │       ├── public/catalog.js   ← GET /api/v1/m/:slug и услуги
+│   │       ├── master/auth.js      ← регистрация мастера, профиль
+│   │       ├── master/bot.js       ← подключение/отключение бота
+│   │       └── webhooks/telegram.js ← входящие апдейты от Telegram
+│   ├── .env                        ← переменные окружения (не коммитить!)
+│   └── package.json
+├── logs/                           ← логи бэкенда (не коммитятся в git)
+│   ├── app.log                     ← все события (INFO/WARN/ERROR)
+│   └── errors.log                  ← только ошибки
+├── brief.md                        ← спецификации проекта
+├── research.md                     ← конкурентный анализ
+└── TESTING.md                      ← этот файл
 ```
 
 ---
@@ -441,7 +456,73 @@ vercel --prod
 
 ---
 
-## 9. Быстрая отладка
+## 9. Тестирование бэкенда (API)
+
+Перед тестом убедись, что сервер запущен и ngrok активен (см. DEPLOYMENT.md).
+
+### Проверка работоспособности
+
+```bash
+# Сервер живой
+curl https://<ngrok-домен>/health
+# → {"status":"ok","message":"Сервер работает!","time":"..."}
+
+# База данных подключена
+curl https://<ngrok-домен>/db-test
+# → {"status":"ok","message":"База данных подключена!"}
+```
+
+### Публичное API (без авторизации)
+
+```bash
+# Профиль мастера по slug
+curl https://<ngrok-домен>/api/v1/m/ani-beauty
+# → {id, name, masterName, bio, rating, isDisabled, plan, theme}
+
+# Список услуг
+curl https://<ngrok-домен>/api/v1/m/ani-beauty/services
+# → {services: [...]}
+
+# Карточка услуги с отзывами
+curl https://<ngrok-домен>/api/v1/m/ani-beauty/services/<id>
+# → {id, name, price, duration_min, photos, reviews: [...]}
+```
+
+### API мастера (требует X-Master-Secret)
+
+```bash
+# Профиль мастера
+curl -H "X-Master-Secret: <секрет>" https://<ngrok-домен>/api/v1/master/profile
+
+# Статус бота
+curl -H "X-Master-Secret: <секрет>" https://<ngrok-домен>/api/v1/master/bot/status
+# → {connected: true/false, bot_username, webhook_url, pending_updates}
+```
+
+### Чтение логов при ошибке
+
+```bash
+# Последние 30 ошибок
+tail -n 30 logs/errors.log
+
+# Все события в реальном времени
+tail -f logs/app.log
+
+# Найти ошибки конкретного модуля
+grep "auth/register" logs/errors.log
+grep "BotManager" logs/app.log
+```
+
+Формат лога:
+```
+[2026-03-13 12:00:00] [ERROR] [auth/register] Ошибка создания аккаунта | {"telegram_id":"123","slug":"anna"}
+[2026-03-13 12:00:01] [WARN ] [bot/connect] Не удалось отправить приветствие мастеру | {"error":"...","masterId":"..."}
+[2026-03-13 12:00:02] [INFO ] [BotManager] Загружено ботов: 1
+```
+
+---
+
+## 10. Быстрая отладка
 
 ### Сбросить состояние приложения (localStorage)
 
